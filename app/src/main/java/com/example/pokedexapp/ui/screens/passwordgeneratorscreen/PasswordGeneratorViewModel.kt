@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
-class PasswordGeneratorViewModel(
-
-) : ViewModel() {
+class PasswordGeneratorViewModel : ViewModel() {
 
     private val RNG = SecureRandom()
 

@@ -25,9 +25,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -37,7 +40,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,6 +87,8 @@ fun PasswordGeneratorScreen(
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -112,7 +120,6 @@ fun PasswordGeneratorScreen(
                 useSymbols = useSymbols,
                 onSymbolsChange = onSymbolsToggle
             )
-
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             PasswordActions(
@@ -130,7 +137,11 @@ fun PasswordGeneratorScreen(
                 }
             )
 
-            PasswordDisplay(password = password)
+            PasswordDisplay(
+                password = password,
+                passwordVisible = passwordVisible,
+                onToggleVisibility = { passwordVisible = !passwordVisible }
+            )
 
             PasswordStrengthIndicator(strength = strength)
         }
@@ -138,7 +149,12 @@ fun PasswordGeneratorScreen(
 }
 
 @Composable
-private fun PasswordDisplay(password: String, modifier: Modifier = Modifier) {
+private fun PasswordDisplay(
+    password: String,
+    passwordVisible: Boolean,
+    onToggleVisibility: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -149,17 +165,41 @@ private fun PasswordDisplay(password: String, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(12.dp)
             )
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
-        Text(
-            text = password.ifEmpty { stringResource(R.string.pg_password_empty) },
-            fontFamily = FontFamily.Monospace,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = 0.06.sp,
-            lineHeight = 28.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val displayText = when {
+                password.isEmpty() -> stringResource(R.string.pg_password_empty)
+                passwordVisible -> password
+                else -> "•".repeat(password.length)
+            }
+
+            Text(
+                text = displayText,
+                fontFamily = FontFamily.Monospace,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = if (passwordVisible || password.isEmpty()) 0.06.sp else 0.15.sp,
+                lineHeight = 28.sp,
+                color = if (password.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (password.isNotEmpty()) {
+                IconButton(onClick = onToggleVisibility) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
     }
 }
 
