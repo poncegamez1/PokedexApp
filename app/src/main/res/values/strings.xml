@@ -22,4 +22,27 @@
     <string name="empty_state_subtitle">There\'s nothing here yet.</string>
     <string name="error_title">Couldn\'t load pokemon</string>
     <string name="error_retry">Retry</string>
+
+    <!-- Initial screen -->
+    <string name="initial_choose_feature">Choose a feature</string>
+    <string name="initial_open_pokeapp">Open PokedexApp</string>
+    <string name="initial_open_password_generator">Open Password Generator</string>
+
+    <!-- Password generator -->
+    <string name="pg_title">Password Generator</string>
+    <string name="pg_password_empty">—</string>
+    <string name="pg_action_generate">Generate Password</string>
+    <string name="pg_action_regenerate">Regenerate</string>
+    <string name="pg_action_copy">Copy</string>
+    <string name="pg_action_copied">Copied!</string>
+    <string name="pg_length_label">Length</string>
+    <string name="pg_slider_min">4</string>
+    <string name="pg_slider_max">64</string>
+    <string name="pg_character_classes_label">Character classes</string>
+    <string name="pg_toggle_uppercase">Uppercase</string>
+    <string name="pg_toggle_uppercase_sub">A – Z</string>
+    <string name="pg_toggle_numbers">Numbers</string>
+    <string name="pg_toggle_numbers_sub">0 – 9</string>
+    <string name="pg_toggle_symbols">Symbols</string>
+    <string name="pg_toggle_symbols_sub">!@#$%…</string>
 </resources>

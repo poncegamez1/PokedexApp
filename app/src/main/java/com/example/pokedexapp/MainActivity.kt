@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -23,8 +25,11 @@ import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.pokedexapp.ui.screens.detailsscreen.PokemonDetailsScreen
 import com.example.pokedexapp.ui.screens.detailsscreen.PokemonDetailsScreenViewModel
+import com.example.pokedexapp.ui.screens.initialscreen.InitialScreen
 import com.example.pokedexapp.ui.screens.listscreen.PokemonListScreen
 import com.example.pokedexapp.ui.screens.listscreen.PokemonListScreenViewModel
+import com.example.pokedexapp.ui.screens.passwordgeneratorscreen.PasswordGeneratorScreen
+import com.example.pokedexapp.ui.screens.passwordgeneratorscreen.PasswordGeneratorViewModel
 import com.example.pokedexapp.ui.theme.PokedexAppTheme
 import com.example.pokedexapp.utils.Routes
 import com.example.pokedexapp.utils.Routes.POKEMON_DETAIL
@@ -42,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = Routes.POKEMON_LIST,
+                        startDestination = Routes.INITIAL,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
@@ -71,6 +76,9 @@ class MainActivity : ComponentActivity() {
                             ) + fadeOut(animationSpec = tween(150))
                         }
                     ) {
+                        composable(Routes.INITIAL) {
+                            InitialScreen(navController = navController)
+                        }
                         composable(Routes.POKEMON_LIST) {
                             val viewModel: PokemonListScreenViewModel = koinViewModel()
                             val pokemonPagingItems = viewModel.pokemonPagingFlow.collectAsLazyPagingItems()
@@ -100,6 +108,32 @@ class MainActivity : ComponentActivity() {
                                 uiState = state.value,
                                 onBack = { navController.popBackStack() },
                                 onRetry = { viewModel.loadPokemon(pokemonName) }
+                            )
+                        }
+                        composable(Routes.PASSWORD_GENERATOR) {
+                            val viewModel: PasswordGeneratorViewModel = koinViewModel()
+                            val length by viewModel.length.collectAsState()
+                            val useUppercase by viewModel.useUppercase.collectAsState()
+                            val useNumbers by viewModel.useNumbers.collectAsState()
+                            val useSymbols by viewModel.useSymbols.collectAsState()
+                            val password by viewModel.password.collectAsState()
+                            val copied by viewModel.copied.collectAsState()
+                            val strength = remember(password) { viewModel.scorePassword(password) }
+
+                            PasswordGeneratorScreen(
+                                length = length,
+                                useUppercase = useUppercase,
+                                useNumbers = useNumbers,
+                                useSymbols = useSymbols,
+                                password = password,
+                                copied = copied,
+                                strength = strength,
+                                onLengthChange = viewModel::onLengthChange,
+                                onUppercaseToggle = viewModel::onUppercaseToggle,
+                                onNumbersToggle = viewModel::onNumbersToggle,
+                                onSymbolsToggle = viewModel::onSymbolsToggle,
+                                onGeneratePassword = viewModel::generatePasswordFromState,
+                                onTriggerCopyFeedback = viewModel::triggerCopyFeedback
                             )
                         }
                     }
