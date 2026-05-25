@@ -4,14 +4,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.pokedexapp.ui.screens.detailsscreen.PokemonDetailsScreen
+import com.example.pokedexapp.ui.screens.detailsscreen.PokemonDetailsScreenViewModel
+import com.example.pokedexapp.ui.screens.listscreen.PokemonListScreen
+import com.example.pokedexapp.ui.screens.listscreen.PokemonListScreenViewModel
 import com.example.pokedexapp.ui.theme.PokedexAppTheme
+import com.example.pokedexapp.utils.Routes
+import com.example.pokedexapp.utils.Routes.POKEMON_DETAIL
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +36,76 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokedexAppTheme {
+
+                val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    NavHost(
+                        navController = navController,
+                        startDestination = Routes.POKEMON_LIST,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        enterTransition = {
+                            slideIntoContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                animationSpec = tween(300)
+                            ) + fadeIn(animationSpec = tween(300))
+                        },
+                        exitTransition = {
+                            slideOutOfContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(150))
+                        },
+                        popEnterTransition = {
+                            slideIntoContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                                animationSpec = tween(300)
+                            ) + fadeIn(animationSpec = tween(300))
+                        },
+                        popExitTransition = {
+                            slideOutOfContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(150))
+                        }
+                    ) {
+                        composable(Routes.POKEMON_LIST) {
+                            val viewModel: PokemonListScreenViewModel = koinViewModel()
+                            val pokemonPagingItems = viewModel.pokemonPagingFlow.collectAsLazyPagingItems()
+                            val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+
+                            PokemonListScreen(
+                                navController = navController,
+                                pokemonPagingItems = pokemonPagingItems,
+                                searchQuery = searchQuery,
+                                onSearchBarQueryChange = viewModel::onSearchQuery
+                            )
+                        }
+
+                        composable(
+                            route = POKEMON_DETAIL,
+                            arguments = listOf(navArgument("pokemonName") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val pokemonName = backStackEntry.arguments?.getString("pokemonName") ?: return@composable
+                            val viewModel: PokemonDetailsScreenViewModel = koinViewModel()
+                            val state = viewModel.state.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.loadPokemon(pokemonName)
+                            }
+
+                            PokemonDetailsScreen(
+                                uiState = state.value,
+                                onBack = { navController.popBackStack() },
+                                onRetry = { viewModel.loadPokemon(pokemonName) }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PokedexAppTheme {
-        Greeting("Android")
-    }
-}

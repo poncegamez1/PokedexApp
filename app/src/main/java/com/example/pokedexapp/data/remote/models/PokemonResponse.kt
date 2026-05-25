@@ -1,25 +1,13 @@
 package com.example.pokedexapp.data.remote.models
 
 data class PokemonResponse(
-    val abilities: List<Ability>,
-    val baseExperience: Int,
-    val cries: Cries,
-    val forms: List<Form>,
-    val gameIndices: List<GameIndice>,
-    val height: Int,
-    val heldItems: List<HeldItem>,
     val id: Int,
-    val isDefault: Boolean,
-    val locationAreaEncounters: String,
-    val moves: List<Move>,
     val name: String,
-    val order: Int,
-    val pastAbilities: List<PastAbility>,
-    val pastStats: List<PastStat>,
-    val pastTypes: List<Any?>,
-    val species: Species,
-    val sprites: Sprites,
-    val stats: List<StatXX>,
-    val types: List<Type>,
-    val weight: Int
+    val height: Int,
+    val weight: Int,
+    val base_experience: Int?,
+    val types: List<TypeResponse>,
+    val abilities: List<AbilityResponse>,
+    val stats: List<StatXXResponse>,
+    val sprites: SpritesResponse
 )

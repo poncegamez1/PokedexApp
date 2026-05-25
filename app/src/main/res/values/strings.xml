@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">PokedexApp</string>
+
+    <!-- List screen -->
+    <string name="list_search_placeholder">Search pokemon…</string>
+    <string name="list_search_clear_cd">Clear search</string>
+    <string name="list_error_unknown">Unknown error</string>
+    <string name="list_error_load_more">Error loading more</string>
+
+    <!-- Detail screen -->
+    <string name="detail_back_cd">Back</string>
+    <string name="detail_label_height">Height</string>
+    <string name="detail_label_weight">Weight</string>
+    <string name="detail_label_base_exp">Base exp</string>
+    <string name="detail_height_value">%s m</string>
+    <string name="detail_weight_value">%s kg</string>
+    <string name="detail_section_abilities">Abilities</string>
+    <string name="detail_section_stats">Base stats</string>
+
+    <!-- Shared components -->
+    <string name="empty_state_title">No pokemon found</string>
+    <string name="empty_state_subtitle">There\'s nothing here yet.</string>
+    <string name="error_title">Couldn\'t load pokemon</string>
+    <string name="error_retry">Retry</string>
 </resources>
